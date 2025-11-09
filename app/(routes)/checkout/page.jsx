@@ -3,17 +3,15 @@ import React, { useContext, useEffect, useState } from 'react';
 import { UpdateCartContext } from '@/app/_context/UpdateCartContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowBigRight } from 'lucide-react';
+import { ArrowBigRight, Loader2, CheckCircle2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { PayPalButtons } from '@paypal/react-paypal-js';
 import { buyCartItem } from '@/app/_components/Payment';
-
 
 const Page = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { updateCart,setUpdateCart } = useContext(UpdateCartContext);
+  const { updateCart, setUpdateCart } = useContext(UpdateCartContext);
 
   const [totalCartItem, setTotalCartItem] = useState(0);
   const [cartItemList, setCartItemList] = useState([]);
@@ -24,7 +22,11 @@ const Page = () => {
   const [phone, setPhone] = useState('');
   const [zip, setZip] = useState('');
   const [address, setAddress] = useState('');
+
   const [updateStatus, setUpdateStatus] = useState('');
+  const [isUpdatingAddress, setIsUpdatingAddress] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState('');
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -63,9 +65,7 @@ const Page = () => {
       try {
         const res = await fetch('/api/getUserAddress');
         const data = await res.json();
-        console.log("data of address is",data);
         const addr = data?.response;
-        console.log("addr is",addr);
         if (addr) {
           setUserName(addr.name || '');
           setEmail(addr.email || '');
@@ -81,9 +81,11 @@ const Page = () => {
     if (session?.user?.email) {
       fetchAddress();
     }
-  }, [session,status]);
+  }, [session, status]);
 
   const handleAddressUpdate = async () => {
+    setIsUpdatingAddress(true);
+    setUpdateStatus('');
     try {
       const res = await fetch('/api/updateAddress', {
         method: 'POST',
@@ -101,14 +103,25 @@ const Page = () => {
       setUpdateStatus('✅ Address updated successfully!');
     } catch (error) {
       console.error('Error updating address:', error);
-      setUpdateStatus(' Failed to update address.');
+      setUpdateStatus('❌ Failed to update address.');
+    } finally {
+      setIsUpdatingAddress(false);
     }
   };
 
- const handleMakePayment=async()=>{
-  console.log("coming in handleMakePayment")
-     buyCartItem({ router, session ,setUpdateCart,updateCart});
- }
+  const handleMakePayment = async () => {
+    setIsPaying(true);
+    setPaymentStatus('');
+    try {
+      await buyCartItem({ router, session, setUpdateCart, updateCart });
+      setPaymentStatus('✅ Payment successful!');
+    } catch (err) {
+      console.error("Payment error:", err);
+      setPaymentStatus('❌ Payment failed. Please try again.');
+    } finally {
+      setIsPaying(false);
+    }
+  };
 
   const taxAmount = (Number(subTotal) * 0.09).toFixed(2);
   const totalAmount = (Number(subTotal) + Number(taxAmount) + 15).toFixed(2);
@@ -121,6 +134,7 @@ const Page = () => {
     <div>
       <h2 className="p-3 bg-green-700 text-xl font-bold text-center text-white">Checkout</h2>
       <div className="p-5 px-5 md:px-10 grid grid-cols-1 md:grid-cols-3 py-8">
+        {/* Billing Section */}
         <div className="md:col-span-2 mx-20">
           <h2 className="font-bold text-3xl">Billing Details</h2>
           <div className="grid grid-cols-2 gap-10 mt-3">
@@ -134,13 +148,30 @@ const Page = () => {
           <div className="mt-3">
             <Input placeholder="Address" value={address} onChange={(e) => setAddress(e.target.value)} />
           </div>
-          <Button className="mt-4 bg-blue-600 text-white hover:bg-blue-700" onClick={handleAddressUpdate}>
-            Update Address
+
+          <Button
+            className="mt-4 mb-2 bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2"
+            onClick={handleAddressUpdate}
+            disabled={isUpdatingAddress}
+          >
+            {isUpdatingAddress ? (
+              <>
+                <Loader2 className="animate-spin h-4 w-4" /> Updating...
+              </>
+            ) : (
+              "Update Address"
+            )}
           </Button>
-          {updateStatus && <p className="mt-2 text-green-600 font-medium">{updateStatus}</p>}
+
+          {updateStatus && (
+            <p className={`mt-2 font-medium ${updateStatus.includes('✅') ? 'text-green-600' : 'text-red-600'}`}>
+              {updateStatus}
+            </p>
+          )}
         </div>
 
-        <div className="mx-10 border">
+        {/* Summary Section */}
+        <div className="mx-10 border rounded-xl shadow-md">
           <h2 className="p-3 bg-gray-200 font-bold text-center">
             Total Cart ({totalCartItem.toString().padStart(2, '0')})
           </h2>
@@ -150,15 +181,29 @@ const Page = () => {
             <h2 className="flex justify-between">Delivery: <span>$15.00</span></h2>
             <h2 className="flex justify-between">Tax (9%): <span>${taxAmount}</span></h2>
             <hr />
-            <h2 className="font-bold flex justify-between">Total: <span>${totalAmount}</span></h2>
+            <h2 className="font-bold flex justify-between text-lg">Total: <span>${totalAmount}</span></h2>
+
             <Button
-            disabled={(!userName || !email || !address || !zip || !phone || totalAmount==15)}
-             onClick={handleMakePayment}
-            className="bg-green-700 text-white hover:bg-green-800 dark:bg-green-500 dark:hover:bg-green-600">
-              Payment <ArrowBigRight />
+              disabled={(!userName || !email || !address || !zip || !phone || totalAmount == 15 || isPaying)}
+              onClick={handleMakePayment}
+              className="bg-green-700 text-white hover:bg-green-800 dark:bg-green-500 dark:hover:bg-green-600 flex items-center justify-center gap-2"
+            >
+              {isPaying ? (
+                <>
+                  <Loader2 className="animate-spin h-4 w-4" /> Processing Payment...
+                </>
+              ) : (
+                <>
+                  Payment <ArrowBigRight />
+                </>
+              )}
             </Button>
-           
-           
+
+            {paymentStatus && (
+              <div className={`flex items-center gap-2 text-sm font-medium ${paymentStatus.includes('✅') ? 'text-green-600' : 'text-red-600'}`}>
+                <CheckCircle2 className="h-4 w-4" /> {paymentStatus}
+              </div>
+            )}
           </div>
         </div>
       </div>
