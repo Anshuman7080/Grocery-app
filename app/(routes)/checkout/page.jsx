@@ -131,26 +131,57 @@ const Page = () => {
   }
 
   return (
-    <div>
-      <h2 className="p-3 bg-green-700 text-xl font-bold text-center text-white">Checkout</h2>
-      <div className="p-5 px-5 md:px-10 grid grid-cols-1 md:grid-cols-3 py-8">
+    <div className="min-h-screen">
+      <h2 className="p-3 sm:p-4 bg-green-700 text-lg sm:text-xl md:text-2xl font-bold text-center text-white">
+        Checkout
+      </h2>
+      
+      <div className="p-4 sm:p-5 md:px-10 lg:px-16 grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 py-6 md:py-8 max-w-7xl mx-auto">
         {/* Billing Section */}
-        <div className="md:col-span-2 mx-20">
-          <h2 className="font-bold text-3xl">Billing Details</h2>
-          <div className="grid grid-cols-2 gap-10 mt-3">
-            <Input placeholder="Name" value={userName} onChange={(e) => setUserName(e.target.value)} />
-            <Input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <div className="lg:col-span-2 w-full">
+          <h2 className="font-bold text-2xl sm:text-3xl mb-4 sm:mb-6">Billing Details</h2>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-3">
+            <Input 
+              placeholder="Name" 
+              value={userName} 
+              onChange={(e) => setUserName(e.target.value)}
+              className="w-full text-base"
+            />
+            <Input 
+              placeholder="Email" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full text-base"
+            />
           </div>
-          <div className="grid grid-cols-2 gap-10 mt-3">
-            <Input placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
-            <Input placeholder="Zip" value={zip} onChange={(e) => setZip(e.target.value)} />
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-3 sm:mt-4">
+            <Input 
+              placeholder="Phone" 
+              value={phone} 
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full text-base"
+            />
+            <Input 
+              placeholder="Zip" 
+              value={zip} 
+              onChange={(e) => setZip(e.target.value)}
+              className="w-full text-base"
+            />
           </div>
-          <div className="mt-3">
-            <Input placeholder="Address" value={address} onChange={(e) => setAddress(e.target.value)} />
+          
+          <div className="mt-3 sm:mt-4">
+            <Input 
+              placeholder="Address" 
+              value={address} 
+              onChange={(e) => setAddress(e.target.value)}
+              className="w-full text-base"
+            />
           </div>
 
           <Button
-            className="mt-4 mb-2 bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2"
+            className="mt-4 mb-2 w-full sm:w-auto bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center gap-2 text-base py-5 sm:py-6"
             onClick={handleAddressUpdate}
             disabled={isUpdatingAddress}
           >
@@ -164,29 +195,41 @@ const Page = () => {
           </Button>
 
           {updateStatus && (
-            <p className={`mt-2 font-medium ${updateStatus.includes('✅') ? 'text-green-600' : 'text-red-600'}`}>
+            <p className={`mt-2 font-medium text-sm sm:text-base ${updateStatus.includes('✅') ? 'text-green-600' : 'text-red-600'}`}>
               {updateStatus}
             </p>
           )}
         </div>
 
         {/* Summary Section */}
-        <div className="mx-10 border rounded-xl shadow-md">
-          <h2 className="p-3 bg-gray-200 font-bold text-center">
+        <div className="w-full border rounded-xl shadow-md lg:sticky lg:top-4 h-fit">
+          <h2 className="p-3 sm:p-4 bg-gray-200 font-bold text-center text-base sm:text-lg">
             Total Cart ({totalCartItem.toString().padStart(2, '0')})
           </h2>
-          <div className="p-4 flex flex-col gap-4">
-            <h2 className="font-bold flex justify-between">Subtotal: <span>${subTotal}</span></h2>
+          
+          <div className="p-4 sm:p-6 flex flex-col gap-3 sm:gap-4">
+            <h2 className="font-bold flex justify-between text-base sm:text-lg">
+              Subtotal: <span>${subTotal}</span>
+            </h2>
             <hr />
-            <h2 className="flex justify-between">Delivery: <span>$15.00</span></h2>
-            <h2 className="flex justify-between">Tax (9%): <span>${taxAmount}</span></h2>
+            
+            <h2 className="flex justify-between text-sm sm:text-base">
+              Delivery: <span>$15.00</span>
+            </h2>
+            
+            <h2 className="flex justify-between text-sm sm:text-base">
+              Tax (9%): <span>${taxAmount}</span>
+            </h2>
             <hr />
-            <h2 className="font-bold flex justify-between text-lg">Total: <span>${totalAmount}</span></h2>
+            
+            <h2 className="font-bold flex justify-between text-lg sm:text-xl">
+              Total: <span>${totalAmount}</span>
+            </h2>
 
             <Button
               disabled={(!userName || !email || !address || !zip || !phone || totalAmount == 15 || isPaying)}
               onClick={handleMakePayment}
-              className="bg-green-700 text-white hover:bg-green-800 dark:bg-green-500 dark:hover:bg-green-600 flex items-center justify-center gap-2"
+              className="w-full bg-green-700 text-white hover:bg-green-800 dark:bg-green-500 dark:hover:bg-green-600 flex items-center justify-center gap-2 text-base py-5 sm:py-6 mt-2"
             >
               {isPaying ? (
                 <>

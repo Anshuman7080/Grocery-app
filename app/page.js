@@ -25,26 +25,41 @@ export default async function Home() {
    
 
   return (
-    <div className="p-5 md:p-10 px-16 ">
-   
-   {/* slider */}
-   <Slider sliderList={sliderList}/>
+    <div className="w-full min-h-screen">
+      {/* Main Container */}
+      <div className="px-3 sm:px-5 md:px-10 lg:px-16 xl:px-20 py-4 sm:py-6 md:py-8 lg:py-10 
+        max-w-[1920px] mx-auto">
+        
+        {/* Slider */}
+        <div className="mb-6 sm:mb-8 md:mb-10">
+          <Slider sliderList={sliderList}/>
+        </div>
 
-   <CategoryList categoryList={categoryList}/>
+        {/* Category List */}
+        <div className="mb-6 sm:mb-8 md:mb-10">
+          <CategoryList categoryList={categoryList}/>
+        </div>
 
-     
-     <ProductList productList={productList}/> 
+        {/* Product List */}
+        <div className="mb-6 sm:mb-8 md:mb-10">
+          <ProductList productList={productList}/> 
+        </div>
 
-          {/* banner */}
-     <Image  src='/FooterImage.png' width={1000} height={300}
-      alt="banner"
-      className="w-full h-[400px] object-contain"
-     />
+        {/* Banner */}
+        <div className="mb-6 sm:mb-8 md:mb-10 w-full">
+          <Image  
+            src='/FooterImage.png' 
+            width={1000} 
+            height={300}
+            alt="banner"
+            className="w-full h-auto max-h-[200px] sm:max-h-[250px] md:max-h-[300px] lg:max-h-[400px] 
+              object-contain rounded-lg"
+          />
+        </div>
 
-     {/* Footer */}
-
-     <Footer/>
-
+        {/* Footer */}
+        <Footer/>
+      </div>
     </div>
   );
 }

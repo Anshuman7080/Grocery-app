@@ -1,6 +1,3 @@
-
-
-
 import { PrismaClient } from '@prisma/client'
 import TopCategoryList from '../_components/TopCategoryList';
 import ProductList from '@/app/_components/ProductList';
@@ -24,18 +21,22 @@ const ProductCategoryPage = async({ params }) => {
   const categoryList = await prisma.category.findMany();
 
   return (
-    <div>
-        <h2 className="p-4 bg-green-800 text-white font-bold text-3xl
-        text-center">{resolvedParams.category}</h2>
-        <TopCategoryList categoryList={categoryList}
+    <div className="min-h-screen w-full">
+        <h2 className="p-3 sm:p-4 md:p-5 bg-green-800 text-white font-bold 
+        text-xl sm:text-2xl md:text-3xl lg:text-4xl text-center break-words">
+          {resolvedParams.category}
+        </h2>
+        
+        <div className="w-full overflow-x-auto">
+          <TopCategoryList 
+            categoryList={categoryList}
             selectedCategory={categoryData?.name}
-        />
+          />
+        </div>
 
-         <div className="p-5 md:p-10 ">
-            <ProductList productList={categoryData?.items}/>
-         </div>
-
-
+        <div className="p-3 sm:p-5 md:p-7 lg:p-10 w-full max-w-[1920px] mx-auto">
+          <ProductList productList={categoryData?.items}/>
+        </div>
     </div>
   );
 };
